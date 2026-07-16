@@ -18,7 +18,6 @@ const { pushRepo } = require("./controllers/push");
 const { pullRepo } = require("./controllers/pull");
 const { revertRepo } = require("./controllers/revert");
 
-
 dotenv.config();
 
 yargs(hideBin(process.argv))
@@ -37,7 +36,7 @@ yargs(hideBin(process.argv))
     // addRepo,       //edit after addFile logic
     (argv) => {
       addRepo(argv.file);
-    }
+    },
   )
 
   .command(
@@ -50,9 +49,9 @@ yargs(hideBin(process.argv))
       });
     },
     // commitRepo,   //edit after commitChange logic
-    (argv) =>{
+    (argv) => {
       commitRepo(argv.message);
-    }
+    },
   )
 
   .command("push", "Push commits to S3", {}, pushRepo)
@@ -67,66 +66,75 @@ yargs(hideBin(process.argv))
       });
     },
     // revertRepo,
-    (argv) =>{
+    (argv) => {
       revertRepo(argv.commitID);
-    }
+    },
   )
-  
+
   .demandCommand(1, "Yor need at least one command")
   .help().argv;
 
-  function StartServer(){
+function StartServer() {
   // console.log("Server login called");
-    const app = express();
-    const port = process.env.PORT || 3002;
+  const app = express();
+  const port = process.env.PORT || 3002;
 
-    app.use(bodyParser.json());
-    app.use(express.json()); 
+  app.use(bodyParser.json());
+  app.use(express.json());
 
-    const mongoURL = process.env.MONGODB_URL;
+  app.use(
+    cors({
+      origin: [
+        "https://github-frontend-p7w2.onrender.com",
+        "http://localhost:5173",
+      ],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+      credentials: true,
+    }),
+  );
 
-    mongoose
+  const mongoURL = process.env.MONGODB_URL;
+
+  mongoose
     .connect(mongoURL)
-    .then(() => 
-      console.log("MongoDB connected"))
+    .then(() => console.log("MongoDB connected"))
     .catch((err) => console.log("Unable to connect", err));
 
-    app.use(cors({ origin: '*'}));
+  // app.use(cors({ origin: '*'}));
 
+  // app.get("/", (req, res) =>{           //This is temporory, just use checking after that paste in routes
+  //   res.send("Welcome!");
+  // });
 
-    // app.get("/", (req, res) =>{           //This is temporory, just use checking after that paste in routes
-    //   res.send("Welcome!");
-    // });
+  app.use("/", mainRouter); //after remove the app.get
 
-      app.use("/", mainRouter);  //after remove the app.get
+  let user = "test";
+  const httpServer = http.createServer(app);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+    },
+  });
 
-    let user = "test";
-    const httpServer = http.createServer(app);
-    const io = new Server(httpServer, {
-      cors:{
-        origin: '*',
-        methods: ["GET", "POST"],
-      }
+  io.on("connection", (socket) => {
+    socket.on("joinRoom", (userID) => {
+      user = userID;
+      console.log("====");
+      console.log(user);
+      console.log("====");
+      socket.join(userID);
     });
+  });
 
-    io.on("connection", (socket) =>{
-      socket.on("joinRoom", (userID) => {
-        user = userID;
-        console.log("====");
-        console.log(user);
-        console.log("====");
-        socket.join(userID);
-      });
-    });
+  const db = mongoose.connection;
 
-    const db = mongoose.connection;
+  db.once("open", async () => {
+    console.log("CRUD operations called");
+    //CRUD operations
+  });
 
-    db.once("open", async () => {
-      console.log("CRUD operations called");
-      //CRUD operations
-    });
-
-   httpServer.listen(port, () => {
+  httpServer.listen(port, () => {
     console.log(`Server running on port ${port}`);
-});
-  }
+  });
+}
