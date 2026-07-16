@@ -82,7 +82,8 @@ function StartServer() {
   app.use(bodyParser.json());
   app.use(express.json());
 
-  app.use(
+  //Yaha se comment out for running in local browser
+  app.use(                         
     cors({
       origin: [
         "https://github-frontend-p7w2.onrender.com",
@@ -92,7 +93,7 @@ function StartServer() {
       credentials: true,
     }),
   );
-
+//yaha tak  or niche code one line
   const mongoURL = process.env.MONGODB_URL;
 
   mongoose
@@ -100,7 +101,7 @@ function StartServer() {
     .then(() => console.log("MongoDB connected"))
     .catch((err) => console.log("Unable to connect", err));
 
-  // app.use(cors({ origin: '*'}));
+  // app.use(cors({ origin: '*'}));       //local browser me chalane ke liye isse  uncomment kr ke again github pr push kre phir attomatically deploy ho jayega
 
   // app.get("/", (req, res) =>{           //This is temporory, just use checking after that paste in routes
   //   res.send("Welcome!");
