@@ -1,29 +1,33 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const IssueSchema = new Schema({
-   
-    tittle: {
-        type: String,
-        required: true,
+const IssueSchema = new Schema(
+  {
+    title: {
+      type: String,
+      required: true,
     },
+
     description: {
-        typr: String,
+      type: String,
+      required: true,
     },
+
     status: {
-        type: String,
-        enum: ["open", "closed"],
-        default: "open",
+      type: String,
+      enum: ["open", "closed"],
+      default: "open",
     },
+
     repository: {
-        type: Schema.Types.ObjectId,
-        ref: "Repository",
-        required: true,
+      type: Schema.Types.ObjectId,
+      ref: "Repository",
+      required: true,
     },
-},
-{
-     timestamps:true,
-}
+  },
+  {
+    timestamps: true,
+  }
 );
 
 const Issue = mongoose.model("Issue", IssueSchema);
