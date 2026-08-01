@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const http = require("http");
 const { Server } = require("socket.io");
-
+const pullRequestRouter = require("./routes/pullRequest.router");
 const mainRouter = require("./routes/main.router");
 
 const yargs = require("yargs");
@@ -83,7 +83,7 @@ function StartServer() {
   app.use(express.json());
 
   //Yaha se comment out for running in local browser
-  app.use(                         
+  app.use(
     cors({
       origin: [
         "https://github-frontend-p7w2.onrender.com",
@@ -93,7 +93,7 @@ function StartServer() {
       credentials: true,
     }),
   );
-//yaha tak  or niche code one line
+  //yaha tak  or niche code one line
   const mongoURL = process.env.MONGODB_URL;
 
   mongoose
@@ -108,7 +108,7 @@ function StartServer() {
   // });
 
   app.use("/", mainRouter); //after remove the app.get
-
+  app.use("/", pullRequestRouter);
   let user = "test";
   const httpServer = http.createServer(app);
   const io = new Server(httpServer, {
