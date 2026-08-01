@@ -101,10 +101,28 @@ async function getIssueById(req, res) {
    }
 }
 
+
+
+async function getEveryIssue(req, res) {
+   try {
+      const issues = await Issue.find({})
+         .populate("repository", "name")
+         .sort({ createdAt: -1 });
+
+      res.status(200).json(issues);
+
+   } catch (err) {
+      console.error("Error during all Issues fetching :", err.message);
+      res.status(500).send("Server Error");
+   }
+}
+
+
 module.exports = {
    createIssue,
    updateIssueById,
    deleteIssueById,
    getAllIssues,
    getIssueById,
+   getEveryIssue,
 };
